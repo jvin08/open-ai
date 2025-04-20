@@ -1,7 +1,6 @@
 import React from 'react'
 
 const TourInfo = ({tour}) => {
-  console.log(tour);
   const { title, description, stops } = tour;
 
   return (
@@ -20,4 +19,3 @@ const TourInfo = ({tour}) => {
 }
 
 export default TourInfo
-TourInfo
