@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs'
 import Providers from "./providers";
+import { dark, neobrutalism } from '@clerk/themes'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,7 +24,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider afterSignOutUrl="/">
+    <ClerkProvider 
+      afterSignOutUrl="/" 
+      appearance={{ baseTheme: dark }}
+    >
       <html lang="en" data-theme="coffee">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}

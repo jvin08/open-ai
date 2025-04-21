@@ -2,7 +2,7 @@
 import { BsMoonFill, BsSunFill } from 'react-icons/bs'
 import { useEffect, useState } from 'react'
 
-const ThemeToggle = () => {
+const ThemeToggle = ({ setClerkTheme}) => {
   const [isLight, setIsLight] = useState(false)
   const toggleTheme = () => {
     setIsLight(isLight => !isLight)
