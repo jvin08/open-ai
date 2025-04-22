@@ -1,5 +1,8 @@
 'use server';
 import OpenAI from "openai";
+import { db } from "../app/db/index"
+import { toursTable as tour } from "@/app/db/schema";
+import {eq, and} from "drizzle-orm";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -17,14 +20,20 @@ export const generateChatResponse = async (chatMessages) => {
     return response.choices[0].message
   }
   catch (error) {
-    console.log(error)
-    return null
+    console.log(error);
+    return null;
   }
 }
 
 export const getExistingTour = async ({ city, country }) => {
-  return null;
-}
+  const result = await db
+    .select()
+    .from(tour)
+    .where(and(eq(tour.city, city), eq(tour.country, country)))
+    .limit(1);
+  return result[0] || null; // Drizzle returns an array, so we get the first item
+};
+
 
 export const generateTourResponse = async ({ city, country }) => {
   const query = `Find a ${city} in this ${country},
@@ -62,9 +71,9 @@ export const generateTourResponse = async ({ city, country }) => {
     console.log(error)
     return null;  
   }
-  
 }
 
-export const createNewTour = async (tour) => {
-  return null;
+export const createNewTour = async (tourData) => {
+  const result = await db.insert(tour).values(tourData).returning();
+  return result[0];
 }
