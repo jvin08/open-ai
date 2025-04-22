@@ -2,7 +2,7 @@
 import OpenAI from "openai";
 import { db } from "../app/db/index"
 import { toursTable as tour } from "@/app/db/schema";
-import {eq, and} from "drizzle-orm";
+import {eq, and, asc} from "drizzle-orm";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -71,9 +71,27 @@ export const generateTourResponse = async ({ city, country }) => {
     console.log(error)
     return null;  
   }
-}
+};
 
 export const createNewTour = async (tourData) => {
   const result = await db.insert(tour).values(tourData).returning();
   return result[0];
-}
+};
+
+export const getAllTours = async (searchTerm) => {
+  try {
+      if (!searchTerm) {
+          const tours = await db.select().from(tour).orderBy(asc(tour.city));
+          return tours;
+      }
+      const tours = await db
+          .select()
+          .from(tour)
+          .where(or(eq(tour.city, searchTerm), eq(tour.country, searchTerm)))
+          .orderBy(asc(tour.city));
+      return tours;
+  } catch (error) {
+      console.error("Database query failed:", error);
+      throw new Error("Could not fetch tours");
+  }
+};
