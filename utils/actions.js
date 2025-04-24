@@ -94,3 +94,8 @@ export const getAllTours = async (searchTerm) => {
       throw new Error("Could not fetch tours");
   }
 };
+
+export const getSingleTour = async (id) => {
+  const singleTour = await db.select().from(tour).where(eq(tour.id, id));
+  return singleTour;
+}
