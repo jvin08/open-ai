@@ -2,7 +2,7 @@
 import OpenAI from "openai";
 import { db } from "../app/db/index"
 import { toursTable as tour } from "@/app/db/schema";
-import {eq, and, asc} from "drizzle-orm";
+import {eq, asc, or, and, ilike, sql} from "drizzle-orm";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -29,8 +29,7 @@ export const getExistingTour = async ({ city, country }) => {
   const result = await db
     .select()
     .from(tour)
-    .where(and(eq(tour.city, city), eq(tour.country, country)))
-    .limit(1);
+    .where(and(eq(tour.city, city), eq(tour.country, country)));
   return result[0] || null; // Drizzle returns an array, so we get the first item
 };
 
@@ -85,10 +84,10 @@ export const getAllTours = async (searchTerm) => {
           return tours;
       }
       const tours = await db
-          .select()
-          .from(tour)
-          .where(or(eq(tour.city, searchTerm), eq(tour.country, searchTerm)))
-          .orderBy(asc(tour.city));
+        .select()
+        .from(tour)
+        .where(sql`city ilike ${'%' + searchTerm + '%'} or country ilike ${'%' + searchTerm + '%'}`)
+        .orderBy(asc(tour.city));
       return tours;
   } catch (error) {
       console.error("Database query failed:", error);
