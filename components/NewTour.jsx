@@ -3,25 +3,39 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   getExistingTour, 
   generateTourResponse, 
-  createNewTour 
+  createNewTour, 
+  fetchUserTokensById,
+  subtractTokens
 } from "@/utils/actions";
 import TourInfo from "./TourInfo";
 import toast from "react-hot-toast";
+import { useAuth } from "@clerk/nextjs";
 
 const NewTour = () => {
   const queryClient = useQueryClient();
-  const { mutate, isPending, data:tour } = useMutation({
+  const { userId } = useAuth();
+  const { mutate, isPending, data: tour } = useMutation({
     mutationFn: async (destination) => {
       const existingTour = await getExistingTour(destination);
-      if(existingTour) return existingTour;
-      const newTour = await generateTourResponse(destination);
-      if(newTour){
-        await createNewTour(newTour);
-        queryClient.invalidateQueries({ queryKey: ['tours']});
-        return newTour;
+      if(existingTour) {
+        console.log('existing tour: ', existingTour)
+        return existingTour;
       }
-      toast.error('No matching city found...')
-      return null;
+      const currentTokens = await fetchUserTokensById(userId);
+      console.log('current tokens: ', currentTokens)
+      if(currentTokens < 500) {
+        toast.error("Tokens balance too low...");
+        return;
+      }
+      const newTour = await generateTourResponse(destination);
+      if(!newTour){
+        toast.error('No matching city found...')
+        return null;
+      }
+        const response = await createNewTour(newTour.tour);
+        queryClient.invalidateQueries({ queryKey: ['tours']});
+        subtractTokens(userId, newTour.tokens)
+        return newTour.tour;
     }
   })
   const handleSubmit = (e) => {
