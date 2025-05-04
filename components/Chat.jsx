@@ -25,7 +25,7 @@ const Chat = () => {
     setMessages((prev) => [...prev, query]);
     setText('');
   }
-  console.log(messages)
+  // console.log(messages)
   return (
     <div className='w-full min-h-[calc(100vh-6rem)] grid grid-rows-[1fr,auto]'>
       <div>

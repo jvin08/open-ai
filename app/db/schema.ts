@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, json, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, json, uniqueIndex, integer, varchar } from "drizzle-orm/pg-core";
 
 export const toursTable = pgTable("tours", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -11,3 +11,8 @@ export const toursTable = pgTable("tours", {
   image: text("image"),
   stops: json("stops"),
   }, (tour)=>([uniqueIndex("unique_city_country").on(tour.city, tour.country)]));
+
+  export const token = pgTable("token", {
+    clerkId: varchar("clerk_id", { length: 255}).primaryKey(),
+    tokens: integer("tokens").default(10000)
+  })

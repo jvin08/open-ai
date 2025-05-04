@@ -2,9 +2,7 @@ import React from 'react'
 
 const loading = () => {
   return (
-    <span>
-      
-    </span>
+    <span className="loading loading-lg"></span>
   )
 }
 

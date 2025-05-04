@@ -1,8 +1,10 @@
 'use server';
 import OpenAI from "openai";
 import { db } from "../app/db/index"
+import { token } from "@/app/db/schema"
 import { toursTable as tour } from "@/app/db/schema";
-import {eq, asc, or, and, ilike, sql} from "drizzle-orm";
+import {eq, asc, and, sql} from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -16,6 +18,7 @@ export const generateChatResponse = async (chatMessages) => {
       ],
       model: 'gpt-4o-mini',
       temperature: 0,
+      max_tokens: 200,
     })  
     return response.choices[0].message
   }
@@ -44,10 +47,9 @@ export const generateTourResponse = async ({ city, country }) => {
         "country": "${country}",
         "title": "title of the tour",
         "description": "description of the city and tour",
-        "stops": ["short paragraph on the stop 1", 
-        "short paragraph on the stop 2", 
-        "short paragraph on the stop 3",
-        "short paragraph on the stop 4"]
+        "stops": ["short paragraph on the stop 1, size 50 tokens", 
+        "short paragraph on the stop 1, size 50 tokens", 
+        "short paragraph on the stop 1, size 50 tokens"]
       }
     }
     If you can't find info on exact ${city}, or ${city} does not exist, or it's population is less than 1, 
@@ -65,7 +67,7 @@ export const generateTourResponse = async ({ city, country }) => {
     if(!tourData.tour){
       return null;
     }
-    return tourData.tour;
+    return { tour: tourData.tour, tokens: response.usage.total_tokens };
   } catch (error) {
     console.log(error)
     return null;  
@@ -98,4 +100,45 @@ export const getAllTours = async (searchTerm) => {
 export const getSingleTour = async (id) => {
   const singleTour = await db.select().from(tour).where(eq(tour.id, id));
   return singleTour;
+}
+
+export const generateTourImage = async ({ city, country }) => {
+  try {
+    const tourImage = await openai.images.generate({
+      prompt: `a panoramic view of the ${city} ${country}`,
+      n: 1,
+      size: "256x256"
+    })
+    return tourImage?.data[0]?.url
+  } catch (error) {
+    return null;
+  }
+}
+
+export const fetchUserTokensById = async (clerkId) => {
+  const result = await db.select().from(token).where(eq(token.clerkId, clerkId));
+  return result[0]?.tokens;
+};
+
+export const generateUserTokensForId = async (clerkId) => {
+  const result = await db.insert(token).values({ clerkId: clerkId }).returning();
+  return result[0]?.tokens;
+};
+
+export const fetchOrGenerateTokens = async (clerkId) => {
+  const result = await fetchUserTokensById(clerkId)
+  if(result) {
+    return result;
+  }
+  return (await generateUserTokensForId(clerkId));
+};
+
+export const subtractTokens = async (clerkId, tokens) => {
+  const result = await db.update(token)
+    .set({
+      tokens: sql`${token.tokens} - ${tokens}`
+    })
+    .where(eq(token.clerkId, clerkId))
+    revalidatePath("/profile");
+  return result.tokens;
 }
