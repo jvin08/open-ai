@@ -1,5 +1,5 @@
 import TourInfo from '@/components/TourInfo';
-import { generateTourImage, getSingleTour } from '@/utils/actions';
+import { generateUnspashTourImage, getSingleTour } from '@/utils/actions';
 import { redirect } from 'next/navigation';
 import Link from "next/link"
 import Image from 'next/image';
@@ -11,13 +11,13 @@ const SingleTourPage = async ({ params }) => {
   if(!tour || tour.length === 0) {
     redirect("/tours");
   }
-  // const tourImage = await generateTourImage({ city:tour.city, country:tour.country })
+  const tourImage = await generateUnspashTourImage({ city:tour[0].city, country:tour[0].country })
   return (
     <div>
       <Link href="/tours" className="btn btn-secondary mb-12">
         Back to tours
       </Link>
-      {/* {
+      {
         tourImage ? <div>
           <Image 
             src={tourImage}
@@ -28,7 +28,7 @@ const SingleTourPage = async ({ params }) => {
             priority
           />
         </div> : null
-      } */}
+      }
       <TourInfo tour={tour[0]} />
     </div>
   )

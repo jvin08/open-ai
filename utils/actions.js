@@ -115,6 +115,17 @@ export const generateTourImage = async ({ city, country }) => {
   }
 }
 
+export const generateUnspashTourImage = async ({city, country}) => {
+  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
+  try {
+    return await fetch(`https://api.unsplash.com/search/photos?query=${city} ${country}&client_id=${unsplashKey}`)
+    .then(response => response.json())
+    .then(data => data.results[Math.floor(Math.random() * 10)].urls.regular);
+  } catch (error) {
+    return null;
+  }
+}
+
 export const fetchUserTokensById = async (clerkId) => {
   const result = await db.select().from(token).where(eq(token.clerkId, clerkId));
   return result[0]?.tokens;
