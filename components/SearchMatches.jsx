@@ -3,9 +3,8 @@ import { debounce } from 'lodash';
 import { useMutation } from '@tanstack/react-query';
 import { searchMatchedTickers } from '@/utils/actions';
 
-const SearchMatches = ({handleTicker}) => {
-  const [data, setData] = useState(["VTI","GLD", "VOO", "IBIT"])
-  const [searchTerm, setSearchTerm] = useState("");
+const SearchMatches = ({ disabled, searchTerm, handleInput }) => {
+  const [data, setData] = useState(["VTI","GLD", "VOO", "IBIT", "XRP", "SOL", "BND", "VEU", "VNQ"])
   const { mutate, isPending } = useMutation({
       mutationFn: async (query) => {
         return searchMatchedTickers(query);
@@ -19,12 +18,12 @@ const SearchMatches = ({handleTicker}) => {
       }
     });
   const handleChange = (e) => {
-    setSearchTerm(e.target.value)
+    const { value } = e.target
+    handleInput(value)
   };
   const handleClick = (e) => {
     const ticker = e.target.name
-    setSearchTerm(ticker);
-    handleTicker(ticker)
+    handleInput(ticker);
     document.activeElement.blur()
   }
   return (
@@ -39,6 +38,8 @@ const SearchMatches = ({handleTicker}) => {
         title='Please provide asset symbol'
         onChange={handleChange}
         value={searchTerm}
+        disabled={disabled}
+        autoComplete='off'
       />
       <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-1 w-full p-2 shadow-sm">
         {data.map((ticker)=><li key={ticker} onClick={handleClick} ><a name={ticker}>{ticker}</a></li>)}
