@@ -1,7 +1,7 @@
 'use server';
 import OpenAI from "openai";
 import { db } from "../app/db/index"
-import { token } from "@/app/db/schema"
+import { token, assets } from "@/app/db/schema"
 import { toursTable as tour } from "@/app/db/schema";
 import {eq, asc, and, sql} from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -24,6 +24,36 @@ export const generateChatResponse = async (chatMessages) => {
   }
   catch (error) {
     console.log(error);
+    return null;
+  }
+}
+
+export const generateSymbolName = async (symbol) => {
+  const query = `If the stock, or etf, or cryptocurrency with ${symbol} exists, find its name.
+  Response should be in the following format:
+  {
+    "symbol": "${symbol}",
+    "name": "name related to this symbol"
+  }
+  If you can't find provided information return { "asset" : null } with no additional characters`
+  try {
+    const response = await openai.chat.completions.create({
+      messages: [{ 
+        role: 'system', 
+        content: 'You are a financial assistant that identifies asset names based on their symbols.'
+      }, {
+        role: 'user',
+        content: query
+      }],
+      model: 'gpt-4o-mini',
+      temperature: 0,
+      max_tokens: 200,
+    })  
+    const assetData = JSON.parse(response.choices[0].message.content);
+    return {asset: assetData, tokens: response.usage.total_tokens}
+  }
+  catch (error) {
+    console.error('API Error: ', error);
     return null;
   }
 }
@@ -79,6 +109,11 @@ export const createNewTour = async (tourData) => {
   return result[0];
 };
 
+export const createNewAsset = async (asstetData) => {
+  const asset = await db.insert(assets).values(asstetData).returning();
+  return asset[0];
+};
+
 export const getAllTours = async (searchTerm) => {
   try {
       if (!searchTerm) {
@@ -123,6 +158,32 @@ export const generateUnspashTourImage = async ({city, country}) => {
     .then(data => data.results[Math.floor(Math.random() * 10)].urls.regular);
   } catch (error) {
     return null;
+  }
+}
+
+export const searchTickerQuote = async (ticker, assetType) => {
+  const twelveKey = process.env.TWELVE_DATA;
+  const dataType = {
+    stock: `quote?symbol=${ticker}`, 
+    crypto: `quote?symbol=${ticker}/USD`
+  }
+  const url = `https://api.twelvedata.com/${dataType[assetType]}&apikey=${twelveKey}`
+  try {
+    return await fetch(url)
+    .then(response => response.json())
+  } catch (error) {
+    return null;
+  }
+}
+
+export const searchMatchedTickers = async (query) => {
+  const alphaVantageKey = process.env.ALPHA_VANTAGE;
+  try {
+    return await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${query}&apikey=${alphaVantageKey}`)
+    .then(response => response.json())
+    .then(data => data.bestMatches.map(ticker => ticker["1. symbol"]).slice(0,3))
+  } catch (error) {
+    return null
   }
 }
 
