@@ -1,7 +1,7 @@
 'use server';
 import OpenAI from "openai";
 import { db } from "../app/db/index"
-import { token, assets } from "@/app/db/schema"
+import { token, assets, portfolioNames } from "@/app/db/schema"
 import { toursTable as tour } from "@/app/db/schema";
 import {eq, asc, and, sql} from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -113,6 +113,23 @@ export const createNewAsset = async (asstetData) => {
   const asset = await db.insert(assets).values(asstetData).returning();
   return asset[0];
 };
+
+export const createNewPortfolio =async (name) => {
+  const portfolio = await db.insert(portfolioNames).values(name).returning();
+  return portfolio[0];
+}
+
+export const getAllPortfolios = async () => {
+  const portfolios = await db.select().from(portfolioNames).orderBy(asc(portfolioNames.name))
+  return portfolios
+}
+export const getAssetsByPortfolioName = async (name, clerkId) => {
+  const portfolio = await db.select()
+  .from(assets)
+  .where(and(eq(assets.portfolioName, name), eq(assets.clerkId, clerkId)))
+  .orderBy(asc(assets.portfolioName))
+  return portfolio
+}
 
 export const getAllTours = async (searchTerm) => {
   try {

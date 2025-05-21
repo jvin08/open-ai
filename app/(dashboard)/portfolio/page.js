@@ -1,12 +1,12 @@
 import React from 'react'
-import Portfolio from '@/components/Portfolio';
+import ClientAccount from '@/components/ClientAccount';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
 const PortfolioPage = () => {
   const queryClient = new QueryClient();
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Portfolio />
+      <ClientAccount />
     </HydrationBoundary>
   )
 }
