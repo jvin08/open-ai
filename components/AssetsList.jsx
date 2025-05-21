@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query';
 import { getAssetsByPortfolioName } from '@/utils/actions';
 import { useAuth } from '@clerk/nextjs';
+import AssetCard from './AssetCard';
 
 const AssetsList = ({name, forceReRender}) => {
   const { userId } = useAuth()
@@ -15,6 +16,7 @@ const AssetsList = ({name, forceReRender}) => {
         toast.error('Assets list went wrong!');
         return;
       }
+      console.log(data)
       setAssets(data);
     }
   });
@@ -23,7 +25,10 @@ const AssetsList = ({name, forceReRender}) => {
   },[name, forceReRender])
   return (
     <ul>
-      {assets.map((a, i)=><li key={a.id}><p className='font-thin'>{a.assetName} ({a.assetSymbol})</p></li>)}
+      {/*<p className='font-thin'>{a.assetName} ({a.assetSymbol})</p>  */}
+      {assets.map((a, i)=><li key={a.id} className='py-4'>
+        <AssetCard name={a.assetName} symbol={a.assetSymbol} price={a.assetPrice} quantity={a.assetQuantity}/>
+      </li>)}
     </ul>
   )
 }
