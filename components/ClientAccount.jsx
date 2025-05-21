@@ -1,13 +1,12 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
-import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { searchTickerQuote } from '@/utils/actions';
 import SearchMatches from './SearchMatches';
 import NewAsset from './NewAsset';
 import PortfolioList from './PortfolioList';
 
 const Portfolio = () => {
-  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [price, setPrice] = useState(1)
   const [quantity, setQuantity] = useState(1)
