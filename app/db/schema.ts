@@ -17,6 +17,11 @@ export const toursTable = pgTable("tours", {
     tokens: integer("tokens").default(10000)
   })
 
+  export const portfolioNames = pgTable("portfolios", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: text("name")
+  })
+  
   export const assets = pgTable("assets", {
     id: uuid("id").defaultRandom().primaryKey(),
     clerkId: varchar("clerk_id", { length: 255 }),

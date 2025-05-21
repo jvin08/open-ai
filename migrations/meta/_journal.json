@@ -36,6 +36,20 @@
       "when": 1747659007824,
       "tag": "0004_familiar_sentinels",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1747709885321,
+      "tag": "0005_dizzy_scarecrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1747745087684,
+      "tag": "0006_amused_strong_guy",
+      "breakpoints": true
     }
   ]
 }

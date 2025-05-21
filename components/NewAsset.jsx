@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { createNewAsset } from '@/utils/actions';
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 
 const NewAsset = ({ asset, ref, toggleModal, quantity, clearInput }) => {
@@ -19,7 +19,6 @@ const NewAsset = ({ asset, ref, toggleModal, quantity, clearInput }) => {
       }
     });
   const handleAsset = () => {
-    toggleModal(false);
     mutate({
       clerkId: userId,
       assetName: asset.name,
@@ -28,6 +27,7 @@ const NewAsset = ({ asset, ref, toggleModal, quantity, clearInput }) => {
       portfolioName: portfolioName,
       assetSymbol: asset.symbol
     })
+    toggleModal(false);
     clearInput()
   }
   const closeToggle = () => {

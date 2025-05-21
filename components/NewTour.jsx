@@ -32,10 +32,10 @@ const NewTour = () => {
         toast.error('No matching city found...')
         return null;
       }
-        const response = await createNewTour(newTour.tour);
-        queryClient.invalidateQueries({ queryKey: ['tours']});
-        subtractTokens(userId, newTour.tokens)
-        return newTour.tour;
+      const response = await createNewTour(newTour.tour);
+      queryClient.invalidateQueries({ queryKey: ['tours']});
+      subtractTokens(userId, newTour.tokens)
+      return newTour.tour;
     }
   })
   const handleSubmit = (e) => {

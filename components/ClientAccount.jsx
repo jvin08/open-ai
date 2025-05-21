@@ -1,20 +1,21 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { searchTickerQuote, generateSymbolName, subtractTokens } from '@/utils/actions';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { searchTickerQuote } from '@/utils/actions';
 import SearchMatches from './SearchMatches';
 import NewAsset from './NewAsset';
+import PortfolioList from './PortfolioList';
 
 const Portfolio = () => {
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [price, setPrice] = useState(1)
   const [quantity, setQuantity] = useState(1)
   const [asset, setAsset] = useState(null)
   const [showAssetDialog, setShowAssetDialog] = useState(false)
   const [assetType, setAssetType] = useState("stock")
-  const [portfolio, setPortfolio] = useState("default")
   const modalRef = useRef(null)
-  const { mutate, isPending } = useMutation({
+  const getAsset = useMutation({
     mutationFn: async (query) => {
       return searchTickerQuote(query, assetType);
     },
@@ -26,10 +27,9 @@ const Portfolio = () => {
       setAsset(data)
     }
   });
-
   const handleAddAsset = async (e) => {
     e.preventDefault()
-    assetType !== "cash" ? mutate(searchTerm) : setAsset({
+    assetType !== "cash" ? getAsset.mutate(searchTerm) : setAsset({
       name: "cash",
       close: 1,
       symbol: "$",
@@ -46,8 +46,8 @@ const Portfolio = () => {
     showAssetDialog && modalRef.current.showModal();
   }, [showAssetDialog])
   return (
-    <>
-      <form className='sm:min-w-4xl mb-auto' onSubmit={handleAddAsset}>
+    <div className='mb-auto mt-10'>
+      <form className='sm:min-w-4xl' onSubmit={handleAddAsset}>
         <div className='join join-vertical sm:join-horizontal w-full'>
           <SearchMatches 
             disabled={assetType === "cash"}
@@ -104,7 +104,8 @@ const Portfolio = () => {
           clearInput={clearInput}
         />
       }
-    </>
+      <PortfolioList forceReRender={showAssetDialog} />
+    </div>
   )
 }
 
