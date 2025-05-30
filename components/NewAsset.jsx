@@ -25,7 +25,8 @@ const NewAsset = ({ asset, ref, toggleModal, quantity, clearInput }) => {
       assetPrice: asset.close,
       assetQuantity: quantity,
       portfolioName: portfolioName,
-      assetSymbol: asset.symbol
+      assetSymbol: asset.symbol,
+      assetType: asset.assetType
     })
     toggleModal(false);
     clearInput()
@@ -36,7 +37,6 @@ const NewAsset = ({ asset, ref, toggleModal, quantity, clearInput }) => {
     clearInput()
   }
   return (
-    
       <dialog className="modal" ref={ref}>
         <div className="modal-box">
           <h3 className="font-bold text-lg py-4">Confirm you adding to your portfolio!</h3>

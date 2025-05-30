@@ -50,6 +50,13 @@
       "when": 1747745087684,
       "tag": "0006_amused_strong_guy",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1747857945338,
+      "tag": "0007_last_omega_red",
+      "breakpoints": true
     }
   ]
 }

@@ -23,16 +23,17 @@ const Portfolio = () => {
         toast.error('Something went wrong!');
         return
       }
-      setAsset(data)
+      setAsset({...data, assetType: assetType})
     }
   });
   const handleAddAsset = async (e) => {
     e.preventDefault()
     assetType !== "cash" ? getAsset.mutate(searchTerm) : setAsset({
-      name: "cash",
+      name: "US Dollar",
       close: 1,
       symbol: "$",
-      currency: "USD"
+      currency: "USD",
+      assetType: "cash"
     });
     setShowAssetDialog(true)
   }
@@ -45,8 +46,8 @@ const Portfolio = () => {
     showAssetDialog && modalRef.current.showModal();
   }, [showAssetDialog])
   return (
-    <div className='mb-auto mt-10'>
-      <form className='sm:min-w-4xl' onSubmit={handleAddAsset}>
+    <div className='mb-auto -mt-6 sm:mt-10'>
+      <form className='w-48 sm:min-w-4xl' onSubmit={handleAddAsset}>
         <div className='join join-vertical sm:join-horizontal w-full'>
           <SearchMatches 
             disabled={assetType === "cash"}
@@ -80,14 +81,14 @@ const Portfolio = () => {
               onChange={(e)=>setPrice(e.target.value)}
             />
           </div>
-          <select defaultValue={assetType} className="select sm:w-24" onChange={(e)=>setAssetType(e.target.value)}>
+          <select defaultValue={assetType} className="select w-full flex" onChange={(e)=>setAssetType(e.target.value)}>
             <option disabled className='text-center'>* * * Pick a type * * *</option>
             <option>stock</option>
             <option>crypto</option>
             <option>cash</option>
           </select>
           <button 
-            className='btn btn-primary join-item uppercase' 
+            className='btn btn-primary join-item uppercase box-border' 
             type='submit'
           >
             add asset
