@@ -179,6 +179,7 @@ export const generateUnspashTourImage = async ({city, country}) => {
 }
 
 export const searchTickerQuote = async (ticker, assetType) => {
+  console.log("searching quote...", new Date().toLocaleTimeString())
   const twelveKey = process.env.TWELVE_DATA;
   const dataType = {
     stock: `quote?symbol=${ticker}`, 
@@ -231,3 +232,15 @@ export const subtractTokens = async (clerkId, tokens) => {
     revalidatePath("/profile");
   return result.tokens;
 }
+
+export const portfolioValue = async (assets, additionalData) => {
+  const valueArray = await Promise.all(
+    assets.map(async (asset) => {
+      if (asset.type !== "cash") {
+        return asset?.totalQuantity * additionalData?.[asset?.symbol];
+      }
+      return asset?.totalQuantity;
+    })
+  );
+  return valueArray.reduce((acc, value) => acc + value, 0);
+};

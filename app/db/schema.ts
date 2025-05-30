@@ -27,6 +27,7 @@ export const toursTable = pgTable("tours", {
     clerkId: varchar("clerk_id", { length: 255 }),
     assetName: text("asset_name"),
     assetSymbol: text("asset_symbol"),
+    assetType: text("asset_type"),
     assetPrice: numeric("asset_price", { precision: 10, scale: 4 }), // Number formatted as 0.0000
     assetQuantity: numeric("asset_quantity", { precision: 10, scale: 2 }), // Number formatted as 0.00
     portfolioName: text("portfolio_name")

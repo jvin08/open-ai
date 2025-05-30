@@ -20,9 +20,12 @@ const PortfolioList = ({forceReRender}) => {
   useEffect(()=>getPortfolios.mutate(),[])
   return (
     <div  className='py-4'>
+      <span className='flex ml-[178px] w-48 text-center font-light italic text-gray-600'>
+        <p className='w-[50%]'>gain / loss</p>
+        <p className='w-[50%]'>total value</p>
+      </span>
       {portfolios.map((p)=>{ return (
         <div key={p.id}>
-          <h2>{p.name}</h2>
           <AssetsList name={p.name} forceReRender={forceReRender} />
         </div>  
       )})}
