@@ -74,16 +74,16 @@ const AssetsList = ({name, forceReRender}) => {
 }, [symbols]); // Runs only once on mount
   const adjuster = gain.startsWith("-")
   const color = adjuster ? "red" : "green";
-  const gainOrLossStyle = `text-${color}-600 w-[50%] text-center flex items-center justify-center`;
+  const gainOrLossStyle = adjuster ? "text-red-500" : "text-green-500";
   return (
     <>
       {assets.length > 0 && 
         <div className='py-1 w-[370px] flex items-center justify-between'>
           <button className='btn btn-lg btn-info mr-auto' onClick={toggleList}>{name}</button>
           <div className='w-48 flex justify-between'>
-            <span className={gainOrLossStyle}>
+            <span className="w-[50%] text-center flex items-center justify-center">
               <Triangle color={color} />
-              { gain.slice(1) }
+              <span className={gainOrLossStyle}>{ gain.slice(1) }</span>
             </span>
             <p className='text-accent-content w-[50%] text-center'>{ totalValue }</p>
           </div>

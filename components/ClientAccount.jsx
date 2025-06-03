@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { searchTickerQuote } from '@/utils/actions';
 import SearchMatches from './SearchMatches';
-import NewAsset from './NewAsset';
+import HandleAsset from './HandleAsset';
 import PortfolioList from './PortfolioList';
 
 const Portfolio = () => {
@@ -12,7 +12,8 @@ const Portfolio = () => {
   const [quantity, setQuantity] = useState(1)
   const [asset, setAsset] = useState(null)
   const [showAssetDialog, setShowAssetDialog] = useState(false)
-  const [assetType, setAssetType] = useState("stock")
+  const [assetType, setAssetType] = useState("")
+  const [operationType, setOperationType] = useState("buy")
   const modalRef = useRef(null)
   const getAsset = useMutation({
     mutationFn: async (query) => {
@@ -41,6 +42,7 @@ const Portfolio = () => {
     setPrice(1)
     setQuantity(1)
     setSearchTerm("")
+    setAssetType("")
   }
   useEffect(()=>{
     showAssetDialog && modalRef.current.showModal();
@@ -81,27 +83,42 @@ const Portfolio = () => {
               onChange={(e)=>setPrice(e.target.value)}
             />
           </div>
-          <select defaultValue={assetType} className="select w-full flex" onChange={(e)=>setAssetType(e.target.value)}>
-            <option disabled className='text-center'>* * * Pick a type * * *</option>
+          <select value={assetType} 
+                  className="select w-full flex" 
+                  onChange={(e)=>setAssetType(e.target.value)}
+                  required
+          >
+            <option disabled value="">asset type</option>
             <option>stock</option>
             <option>crypto</option>
             <option>cash</option>
           </select>
-          <button 
-            className='btn btn-primary join-item uppercase box-border' 
-            type='submit'
-          >
-            add asset
-          </button>
+          <div className='flex justify-between'>
+            <button 
+              className='btn btn-primary join-item uppercase box-border' 
+              type='submit'
+              onClick={()=>setOperationType("buy")}
+            >
+              Buy
+            </button>
+            <button 
+              className='btn btn-primary join-item uppercase box-border' 
+              type='submit'
+              onClick={()=>setOperationType("sell")}
+            >
+              Sell
+            </button>
+          </div>
         </div>
       </form>
       {
-        showAssetDialog && <NewAsset 
+        showAssetDialog && <HandleAsset 
           asset={asset} 
           quantity={quantity}
           ref={modalRef}
           toggleModal={setShowAssetDialog}
           clearInput={clearInput}
+          type={operationType}
         />
       }
       <PortfolioList forceReRender={showAssetDialog} />
