@@ -53,7 +53,6 @@ export const generateSymbolName = async (symbol) => {
     return {asset: assetData, tokens: response.usage.total_tokens}
   }
   catch (error) {
-    console.error('API Error: ', error);
     return null;
   }
 }
@@ -114,6 +113,42 @@ export const createNewAsset = async (asstetData) => {
   return asset[0];
 };
 
+export const deleteAssets = async ({clerkId, assetQuantity, assetSymbol, portfolioName}) => {
+  // Fetch assets for the user with the specified symbol, ordered by price (ascending)
+  const assetsToDelete = await db
+    .select()
+    .from(assets)
+    .where(and(eq( assets.clerkId, clerkId ), eq(assets.assetSymbol, assetSymbol), eq(assets.portfolioName, portfolioName)))
+    .orderBy(asc(assets.assetSymbol));
+  let remainingQuantity = assetQuantity;
+  let deletedAssets = [];
+
+  for (const asset of assetsToDelete) {
+    if (remainingQuantity <= 0) break;
+
+    const deleteQuantity = Math.min(asset.assetQuantity, remainingQuantity);
+    remainingQuantity -= deleteQuantity;
+
+    // Delete the asset or update its quantity if some remain
+    if (deleteQuantity >= asset.assetQuantity) {
+      const deleted = await db
+        .delete(assets)
+        .where(eq(assets.id, asset.id))
+        .returning();
+      deletedAssets.push(deleted[0]);
+    } else {
+      const updated = await db
+        .update(assets)
+        .set({ assetQuantity: asset.assetQuantity - deleteQuantity })
+        .where(eq(assets.id, asset.id))
+        .returning();
+      deletedAssets.push(updated[0]);
+    }
+  }
+
+  return deletedAssets;
+};
+
 export const createNewPortfolio =async (name) => {
   const portfolio = await db.insert(portfolioNames).values(name).returning();
   return portfolio[0];
@@ -144,7 +179,6 @@ export const getAllTours = async (searchTerm) => {
         .orderBy(asc(tour.city));
       return tours;
   } catch (error) {
-      console.error("Database query failed:", error);
       throw new Error("Could not fetch tours");
   }
 };
@@ -179,16 +213,15 @@ export const generateUnspashTourImage = async ({city, country}) => {
 }
 
 export const searchTickerQuote = async (ticker, assetType) => {
-  console.log("searching quote...", new Date().toLocaleTimeString())
+  console.log("searching quote for " + ticker + "...", new Date().toLocaleTimeString())
   const twelveKey = process.env.TWELVE_DATA;
   const dataType = {
-    stock: `quote?symbol=${ticker}`, 
-    crypto: `quote?symbol=${ticker}/USD`
+    stock: ticker, 
+    crypto: ticker + "/USD"
   }
-  const url = `https://api.twelvedata.com/${dataType[assetType]}&apikey=${twelveKey}`
+  const url = `https://api.twelvedata.com/quote?symbol=${dataType[assetType]}&apikey=${twelveKey}`
   try {
-    return await fetch(url)
-    .then(response => response.json())
+    return await fetch(url).then(response => response.json())
   } catch (error) {
     return null;
   }
@@ -244,3 +277,4 @@ export const portfolioValue = async (assets, additionalData) => {
   );
   return valueArray.reduce((acc, value) => acc + value, 0);
 };
+
