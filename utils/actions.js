@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { db } from "../app/db/index"
 import { token, assets, portfolioNames } from "@/app/db/schema"
 import { toursTable as tour } from "@/app/db/schema";
-import {eq, asc, and, sql} from "drizzle-orm";
+import {eq, asc, and, sql, notLike} from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 const openai = new OpenAI({
@@ -28,19 +28,21 @@ export const generateChatResponse = async (chatMessages) => {
   }
 }
 
-export const generateSymbolName = async (symbol) => {
+export const generateAssetData = async (symbol) => {
   const query = `If the stock, or etf, or cryptocurrency with ${symbol} exists, find its name.
   Response should be in the following format:
   {
     "symbol": "${symbol}",
-    "name": "name related to this symbol"
+    "text": "description",
+    "data": "last closing data",
+    "updated_at": ${new Date().toLocaleString()}
   }
   If you can't find provided information return { "asset" : null } with no additional characters`
   try {
     const response = await openai.chat.completions.create({
       messages: [{ 
         role: 'system', 
-        content: 'You are a financial assistant that identifies asset names based on their symbols.'
+        content: 'You are a financial assistant that identifies asset name and last price  based on their symbols.'
       }, {
         role: 'user',
         content: query
@@ -158,6 +160,16 @@ export const getAllPortfolios = async () => {
   const portfolios = await db.select().from(portfolioNames).orderBy(asc(portfolioNames.name))
   return portfolios
 }
+export const getUniqueSymbols = async () => {
+  const uniques = await db
+  .selectDistinct({symbol: assets.assetSymbol, name: assets.assetName, price: assets.lastPrice, type: assets.assetType, time: assets.updatedAt})
+  .from(assets).where(notLike(assets.assetSymbol, "$")).orderBy(assets.assetSymbol);
+  return uniques
+}
+export const updateAssetPrice = async (symbol, price, time) => {
+  console.log("Updating prices...", time, price, symbol)
+  return await db.update(assets).set({ lastPrice: price, updatedAt: time }).where(eq(assets.assetSymbol, symbol)).returning();
+}
 export const getAssetsByPortfolioName = async (name, clerkId) => {
   const portfolio = await db.select()
   .from(assets)
@@ -212,14 +224,11 @@ export const generateUnspashTourImage = async ({city, country}) => {
   }
 }
 
-export const searchTickerQuote = async (ticker, assetType) => {
-  console.log("searching quote for " + ticker + "...", new Date().toLocaleTimeString())
+export const searchTickerQuote = async (ticker) => {
+  console.log("searching quote for " + ticker)
   const twelveKey = process.env.TWELVE_DATA;
-  const dataType = {
-    stock: ticker, 
-    crypto: ticker + "/USD"
-  }
-  const url = `https://api.twelvedata.com/quote?symbol=${dataType[assetType]}&apikey=${twelveKey}`
+
+  const url = `https://api.twelvedata.com/quote?symbol=${ticker}&apikey=${twelveKey}`
   try {
     return await fetch(url).then(response => response.json())
   } catch (error) {
@@ -266,15 +275,4 @@ export const subtractTokens = async (clerkId, tokens) => {
   return result.tokens;
 }
 
-export const portfolioValue = async (assets, additionalData) => {
-  const valueArray = await Promise.all(
-    assets.map(async (asset) => {
-      if (asset.type !== "cash") {
-        return asset?.totalQuantity * additionalData?.[asset?.symbol];
-      }
-      return asset?.totalQuantity;
-    })
-  );
-  return valueArray.reduce((acc, value) => acc + value, 0);
-};
 

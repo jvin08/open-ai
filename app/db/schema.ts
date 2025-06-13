@@ -30,5 +30,7 @@ export const toursTable = pgTable("tours", {
     assetType: text("asset_type"),
     assetPrice: numeric("asset_price", { precision: 10, scale: 4 }), // Number formatted as 0.0000
     assetQuantity: numeric("asset_quantity", { precision: 10, scale: 2 }), // Number formatted as 0.00
-    portfolioName: text("portfolio_name")
+    portfolioName: text("portfolio_name"),
+    lastPrice: numeric("last_price", { precision: 10, scale: 4 }),
+    updatedAt: timestamp("updated_at").defaultNow().notNull()
   });
