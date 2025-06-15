@@ -57,7 +57,7 @@ const Portfolio = () => {
             handleInput={setSearchTerm}
           />
           <div>
-          <input 
+          {/* <input 
             type="number" 
             className="input validator w-full text-left sm:w-24" 
             required 
@@ -66,11 +66,11 @@ const Portfolio = () => {
             title="Quantity" 
             value={quantity}
             onChange={(e)=>setQuantity(e.target.value)}
-          />
+          /> */}
           {/* <p className="validator-hint">Quantity must be a number</p> */}
           </div>
           <div>
-            <input 
+            {/* <input 
               type="number" 
               step="0.01"
               inputMode='decimal'
@@ -81,7 +81,7 @@ const Portfolio = () => {
               title="Price" 
               value={price}
               onChange={(e)=>setPrice(e.target.value)}
-            />
+            /> */}
           </div>
           <select value={assetType} 
                   className="select w-full flex" 
@@ -114,7 +114,6 @@ const Portfolio = () => {
       {
         showAssetDialog && <HandleAsset 
           asset={asset} 
-          quantity={quantity}
           ref={modalRef}
           toggleModal={setShowAssetDialog}
           clearInput={clearInput}

@@ -163,8 +163,14 @@ export const getAllPortfolios = async () => {
 }
 export const getUniqueSymbols = async () => {
   const uniques = await db
-  .selectDistinct({symbol: assets.assetSymbol, name: assets.assetName, price: assets.lastPrice, type: assets.assetType, time: assets.updatedAt})
-  .from(assets).where(notLike(assets.assetSymbol, "$")).orderBy(assets.assetSymbol);
+  .select({
+    symbol: assets.assetSymbol,
+    price: sql`MAX(${assets.lastPrice})`.as('price'), // example
+    time: sql`MAX(${assets.updatedAt})`.as('time')
+  })
+  .from(assets)
+  .where(notLike(assets.assetSymbol, "$"))
+  .groupBy(assets.assetSymbol);
   return uniques
 }
 export const updateAssetPrice = async (symbol, price, time) => {
