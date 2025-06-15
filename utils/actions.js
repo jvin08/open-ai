@@ -151,8 +151,9 @@ export const deleteAssets = async ({clerkId, assetQuantity, assetSymbol, portfol
   return deletedAssets;
 };
 
-export const createNewPortfolio =async (name) => {
-  const portfolio = await db.insert(portfolioNames).values(name).returning();
+export const createNewPortfolio = async (name) => {
+  console.log("adding portfolio", name)
+  const portfolio = await db.insert(portfolioNames).values({name: name}).returning();
   return portfolio[0];
 }
 
@@ -224,11 +225,11 @@ export const generateUnspashTourImage = async ({city, country}) => {
   }
 }
 
-export const searchTickerQuote = async (ticker) => {
+export const searchTickerQuote = async (ticker, type) => {
   console.log("searching quote for " + ticker)
   const twelveKey = process.env.TWELVE_DATA;
-
-  const url = `https://api.twelvedata.com/quote?symbol=${ticker}&apikey=${twelveKey}`
+  const tickerQuery = type === "stock" ? ticker : ticker + "/USD"
+  const url = `https://api.twelvedata.com/quote?symbol=${tickerQuery}&apikey=${twelveKey}`
   try {
     return await fetch(url).then(response => response.json())
   } catch (error) {
