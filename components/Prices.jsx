@@ -17,7 +17,6 @@ const Prices = () => {
         toast.error('No matching ticker found...')
         return null;
       }
-      console.log(newQuote)
       return newQuote;
     }
   })
@@ -40,7 +39,6 @@ const Prices = () => {
   React.useEffect(() => {
     
     if (quote && quote.symbol && !isPending && !isLoading) {
-      console.log("running useEffect...")
       const timestamp =  quote.is_market_open ? quote.last_quote_at : quote.timestamp;
       const newTime = new Date(timestamp * 1000);      
       const price = quote.is_market_open ? quote.open : quote.close

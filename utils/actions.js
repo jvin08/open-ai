@@ -159,8 +159,8 @@ export const getAllPortfolios = async () => {
   return portfolios
 }
 export const getUserAssets = async (userId) => {
-  const assets = await db.select().from(assets).where(eq(assets.clerkId, userId))
-  return assets
+  const data = await db.select().from(assets).where(eq(assets.clerkId, userId))
+  return data
 }
 export const getUniqueSymbols = async () => {
   const uniques = await db
@@ -231,7 +231,15 @@ export const generateUnspashTourImage = async ({city, country}) => {
     return null;
   }
 }
-
+export const queryTickers = async (query) => {
+  const polygonKey = process.env.POLIGON_DATA
+  const url = `https://api.polygon.io/v3/reference/tickers?market=stocks&search=${query}&active=true&order=asc&limit=5&sort=ticker&apiKey=${polygonKey}`
+  try {
+    return await fetch(url).then(response => response.json())
+  } catch (error) {
+    return null;
+  }
+}
 export const searchTickerQuote = async (ticker, type) => {
   console.log("searching quote for " + ticker)
   const twelveKey = process.env.TWELVE_DATA;
@@ -244,28 +252,14 @@ export const searchTickerQuote = async (ticker, type) => {
     return null;
   }
 }
-
-export const searchMatchedTickers = async (query) => {
-  const alphaVantageKey = process.env.ALPHA_VANTAGE;
-  try {
-    return await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${query}&apikey=${alphaVantageKey}`)
-    .then(response => response.json())
-    .then(data => data.bestMatches.map(ticker => ticker["1. symbol"]).slice(0,3))
-  } catch (error) {
-    return null
-  }
-}
-
 export const fetchUserTokensById = async (clerkId) => {
   const result = await db.select().from(token).where(eq(token.clerkId, clerkId));
   return result[0]?.tokens;
 };
-
 export const generateUserTokensForId = async (clerkId) => {
   const result = await db.insert(token).values({ clerkId: clerkId }).returning();
   return result[0]?.tokens;
 };
-
 export const fetchOrGenerateTokens = async (clerkId) => {
   const result = await fetchUserTokensById(clerkId)
   if(result) {
@@ -273,7 +267,6 @@ export const fetchOrGenerateTokens = async (clerkId) => {
   }
   return (await generateUserTokensForId(clerkId));
 };
-
 export const subtractTokens = async (clerkId, tokens) => {
   const result = await db.update(token)
     .set({

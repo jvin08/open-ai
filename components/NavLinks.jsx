@@ -14,7 +14,7 @@ const NavLinks = () => {
     <ul className='menu text-base-content flex flex-grow w-full'>
       {links.map((link) => (
         <li key={link.href} className='mb-4'>
-          <Link href={link.href} className='capitalize'>
+          <Link href={link.href}>
             {link.label}
           </Link>
         </li>

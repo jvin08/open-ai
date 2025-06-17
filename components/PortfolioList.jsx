@@ -14,6 +14,9 @@ const PortfolioList = ({forceReRender}) => {
       return data
     },
   });
+  const totalValue = data?.reduce((acc,val)=>acc + Number(val.assetQuantity) * Number(val.lastPrice),0)
+  console.log("totalValue: ", totalValue);
+  
   const getPortfolios = useMutation({
     mutationFn: async () => {
       return getAllPortfolios();
