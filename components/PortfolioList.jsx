@@ -1,10 +1,19 @@
-import { getAllPortfolios } from '@/utils/actions';
+import { getAllPortfolios, getUserAssets } from '@/utils/actions';
 import React, { useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import AssetsList from './AssetsList';
+import { useAuth } from "@clerk/nextjs";
 
 const PortfolioList = ({forceReRender}) => {
+  const { userId } = useAuth();
   const [portfolios, setPortfolios] = useState([])
+  const { data, isLoading } = useQuery({
+    queryKey: ['assets', userId],
+    queryFn: async() => {
+      const data = await getUserAssets(userId)
+      return data
+    },
+  });
   const getPortfolios = useMutation({
     mutationFn: async () => {
       return getAllPortfolios();

@@ -17,6 +17,7 @@ const Prices = () => {
         toast.error('No matching ticker found...')
         return null;
       }
+      console.log(newQuote)
       return newQuote;
     }
   })
@@ -37,16 +38,17 @@ const Prices = () => {
     mutate(symbol)
   }
   React.useEffect(() => {
-    if (!isPending && quote) {
+    
+    if (quote && quote.symbol && !isPending && !isLoading) {
+      console.log("running useEffect...")
       const timestamp =  quote.is_market_open ? quote.last_quote_at : quote.timestamp;
       const newTime = new Date(timestamp * 1000);      
       const price = quote.is_market_open ? quote.open : quote.close
       update.mutate({ symbol: quote.symbol, quote: price, time: newTime });
       }
   }, [quote, isPending]);  // Depend on quote & isPending
-
   return (
-    <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100">
+    <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mb-auto mt-8">
       <table className="table">
         {/* head */}
         <thead>
@@ -65,7 +67,7 @@ const Prices = () => {
             <th>{idx + 1}</th>
             <td>{item.symbol}</td>
             <td>{item.price}</td>
-            <td>{item.time.toISOString().slice(11,16)}</td>
+            <td className='font-light text-xs'>{item.time.toLocaleString().slice(0,16)}</td>
             <td>
               <button className="btn btn-ghost" onClick={()=>handleClick(item.symbol)}>
                 <FaCloudDownloadAlt />

@@ -114,7 +114,6 @@ export const createNewAsset = async (asstetData) => {
   const asset = await db.insert(assets).values(asstetData).returning();
   return asset[0];
 };
-
 export const deleteAssets = async ({clerkId, assetQuantity, assetSymbol, portfolioName}) => {
   // Fetch assets for the user with the specified symbol, ordered by price (ascending)
   const assetsToDelete = await db
@@ -150,21 +149,29 @@ export const deleteAssets = async ({clerkId, assetQuantity, assetSymbol, portfol
 
   return deletedAssets;
 };
-
 export const createNewPortfolio = async (name) => {
   console.log("adding portfolio", name)
   const portfolio = await db.insert(portfolioNames).values({name: name}).returning();
   return portfolio[0];
 }
-
 export const getAllPortfolios = async () => {
   const portfolios = await db.select().from(portfolioNames).orderBy(asc(portfolioNames.name))
   return portfolios
 }
+export const getUserAssets = async (userId) => {
+  const assets = await db.select().from(assets).where(eq(assets.clerkId, userId))
+  return assets
+}
 export const getUniqueSymbols = async () => {
   const uniques = await db
-  .selectDistinct({symbol: assets.assetSymbol, name: assets.assetName, price: assets.lastPrice, type: assets.assetType, time: assets.updatedAt})
-  .from(assets).where(notLike(assets.assetSymbol, "$")).orderBy(assets.assetSymbol);
+  .select({
+    symbol: assets.assetSymbol,
+    price: sql`MAX(${assets.lastPrice})`.as('price'), // example
+    time: sql`MAX(${assets.updatedAt})`.as('time')
+  })
+  .from(assets)
+  .where(notLike(assets.assetSymbol, "$"))
+  .groupBy(assets.assetSymbol);
   return uniques
 }
 export const updateAssetPrice = async (symbol, price, time) => {
@@ -228,7 +235,8 @@ export const generateUnspashTourImage = async ({city, country}) => {
 export const searchTickerQuote = async (ticker, type) => {
   console.log("searching quote for " + ticker)
   const twelveKey = process.env.TWELVE_DATA;
-  const tickerQuery = type === "stock" ? ticker : ticker + "/USD"
+  const tickerQuery = type === "crypto" ? ticker + "/USD" : ticker
+  console.log("tickerQuery: ", tickerQuery)
   const url = `https://api.twelvedata.com/quote?symbol=${tickerQuery}&apikey=${twelveKey}`
   try {
     return await fetch(url).then(response => response.json())
