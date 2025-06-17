@@ -4,12 +4,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { FaPlus } from "react-icons/fa6";
 import { RiArrowGoBackFill } from "react-icons/ri";
+import InputElement from './InputElement';
+import InputPrice from './InputPrice';
 
 const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
   const { userId } = useAuth();
   const [portfolioName, setPortfolioName] = useState("")
   const [newPortfolioName, setNewPortfolioName] = useState("")
   const [showInput, setShowInput] = useState(false)
+  const [quantity, setQuantity] = useState(1)
+  const [price, setPrice] = useState("")
   const queryClient = useQueryClient();
   const { data: portfolios, isLoading } = useQuery({
     queryKey: ['portfolios'],
@@ -45,18 +49,20 @@ const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
     }
   });
   const handleAsset = (e) => {
-    e.preventDefault();    
+    e.preventDefault();  
+    const newPrice = price !== "" ? price : asset?.close  
     mutate({
       clerkId: userId,
       assetName: asset.name,
-      assetPrice: asset.close,
-      assetQuantity: 1,
+      assetPrice: price,
+      assetQuantity: quantity,
       portfolioName: portfolioName,
       assetSymbol: asset.symbol,
       assetType: asset.assetType,
-      lastPrice: asset.close,
+      lastPrice: newPrice,
       updatedAt: new Date()
-    })
+    });
+    setPrice("")
     toggleModal(false);
     clearInput()
   }
@@ -99,9 +105,21 @@ const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
             </div>
           </div>
           {!showInput ? <Fragment>
-            <p className='py-2'>{asset?.name} ({ asset?.symbol })</p>
-            <p className="py-2">Price: { asset?.currency } { asset?.close }</p>
-            <p className='pt-2 pb-4'>Quantity: 1</p>
+            <p className='py-2 flex justify-between'>{asset?.name} ({ asset?.symbol }) <span className='text-sm italic'>market price:  {asset?.close}</span></p>
+            <InputPrice 
+              setPrice={setPrice} 
+              type="number"
+              text={"my_price: "}
+              value={price}
+            />
+            <InputElement 
+              setQuantity={setQuantity} 
+              quantity={quantity}
+              name="quantity:"
+              pattern="^\d*$"
+              min={0}
+              placeholder="Enter number (e.g. 2, 455, 1)"
+            />
             <label className="select">
               <span className="label">Portfolio</span>
               <select 

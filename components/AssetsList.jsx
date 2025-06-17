@@ -41,7 +41,7 @@ const AssetsList = ({name, forceReRender}) => {
         }, {})
       );
       const currentValue = uniqueItems.reduce((acc, asset)=>acc + asset.totalValueNow,0)
-      const spentOnInvestments = uniqueItems.reduce((acc, asset)=>acc + asset.totalSpent,0)      
+      const spentOnInvestments = uniqueItems.reduce((acc, asset)=>acc + asset.totalSpent,0)  
       setGain((currentValue - spentOnInvestments).toFixed(2))
       setTotalValue(currentValue.toFixed(2))
       setAssets(uniqueItems);
@@ -56,8 +56,10 @@ const AssetsList = ({name, forceReRender}) => {
   },[name, forceReRender])
 
   const adjuster = gain.startsWith("-")
-  const color = adjuster ? "red" : "green";
-  const gainOrLossStyle = adjuster ? "text-red-500" : "text-green-500";
+  const adjusterZero = gain.startsWith("-0.00")
+  const color = adjuster ? adjusterZero ? "gray" : "red" : "green";
+  const gainOrLossStyle = adjuster ? adjusterZero ? "text-gray-500" : "text-red-500" : "text-green-500";
+  const gainForRender = adjuster ? gain.slice(1) : gain
   return (
     <>
       {assets?.length > 0 && 
@@ -65,8 +67,8 @@ const AssetsList = ({name, forceReRender}) => {
           <button className='btn btn-lg btn-info mr-auto' onClick={toggleList}>{name}</button>
           <div className='w-48 flex justify-between'>
             <span className="w-[50%] text-center flex items-center justify-center">
-              <Triangle color={color} />
-              <span className={gainOrLossStyle}>{ gain.slice(1) }</span>
+              {color !== "gray" && <Triangle color={color} />}
+              <span className={gainOrLossStyle}>{ gainForRender }</span>
             </span>
             <p className='text-accent-content w-[50%] text-center'>{ totalValue }</p>
           </div>

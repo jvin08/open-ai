@@ -8,8 +8,6 @@ import PortfolioList from './PortfolioList';
 
 const Portfolio = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [price, setPrice] = useState(1)
-  const [quantity, setQuantity] = useState(1)
   const [asset, setAsset] = useState(null)
   const [showAssetDialog, setShowAssetDialog] = useState(false)
   const [assetType, setAssetType] = useState("")
@@ -39,8 +37,6 @@ const Portfolio = () => {
     setShowAssetDialog(true)
   }
   const clearInput = () => {
-    setPrice(1)
-    setQuantity(1)
     setSearchTerm("")
     setAssetType("")
   }
@@ -56,33 +52,6 @@ const Portfolio = () => {
             searchTerm={searchTerm}
             handleInput={setSearchTerm}
           />
-          <div>
-          {/* <input 
-            type="number" 
-            className="input validator w-full text-left sm:w-24" 
-            required 
-            placeholder="Quantity" 
-            min="0"
-            title="Quantity" 
-            value={quantity}
-            onChange={(e)=>setQuantity(e.target.value)}
-          /> */}
-          {/* <p className="validator-hint">Quantity must be a number</p> */}
-          </div>
-          <div>
-            {/* <input 
-              type="number" 
-              step="0.01"
-              inputMode='decimal'
-              className="input validator text-left w-full sm:w-24" 
-              required 
-              placeholder="Price" 
-              min="0"
-              title="Price" 
-              value={price}
-              onChange={(e)=>setPrice(e.target.value)}
-            /> */}
-          </div>
           <select value={assetType} 
                   className="select w-full flex" 
                   onChange={(e)=>setAssetType(e.target.value)}
@@ -114,6 +83,7 @@ const Portfolio = () => {
       {
         showAssetDialog && <HandleAsset 
           asset={asset} 
+          assetPrice={asset?.close}
           ref={modalRef}
           toggleModal={setShowAssetDialog}
           clearInput={clearInput}
