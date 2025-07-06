@@ -1,4 +1,4 @@
-import { getAllPortfolios, getUserAssets } from '@/utils/actions';
+import { getUserPortfolios, getUserAssets } from '@/utils/actions';
 import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import AssetsList from './AssetsList';
@@ -10,8 +10,8 @@ const PortfolioList = ({forceReRender}) => {
   const [portfolios, setPortfolios] = useState([])
   const { data, isLoading } = useQuery({
     queryKey: ['assets', userId],
-    queryFn: async() => {
-      const data = await getUserAssets(userId)
+    queryFn: () => {
+      const data = getUserAssets(userId)
       return data
     },
   });
@@ -21,26 +21,14 @@ const PortfolioList = ({forceReRender}) => {
     acc.gain = acc.gain + Number(val.assetQuantity) * (Number(val.lastPrice) - Number(val.assetPrice))
     return acc
   }, { total:0, gain:0 })
-  // assetName :  "iShares Bitcoin Trust"
-  // assetPrice :  "59.7403"
-  // assetQuantity :  "1.00"
-  // assetSymbol :  "IBIT"
-  // assetType :  "stock"
-  // clerkId :  "user_2w0UhcWsJJaK8r9edFyduBowtAV"
-  // id :  "b0d23309-8f93-4c3e-986d-f11536bb058e"
-  // lastPrice :  "61.80000"
-  // portfolioName :  "animals"
-  
+
   const getPortfolios = useMutation({
-    mutationFn: async () => {
-      return getAllPortfolios();
-    },
+    mutationFn: async (id) => getUserPortfolios(id),
     onSuccess: (data) => {
       if(!data){
         toast.error('Portfolios list went wrong!');
         return
       }
-      console.log("portfolio: ", data)
       setPortfolios(data);
     }
   });
@@ -51,7 +39,7 @@ const PortfolioList = ({forceReRender}) => {
     return num?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  useEffect(()=>getPortfolios.mutate(),[])
+  useEffect(()=>getPortfolios.mutate(userId),[])
   const gainStyle = totalValue?.gain < 0 ? "badge badge-lg badge-error ml-2" : "badge badge-lg badge-accent ml-2"
   return (
     <div  className='py-4'>
@@ -68,7 +56,7 @@ const PortfolioList = ({forceReRender}) => {
       </span>
       {portfolios.map((p)=>{ return (
         <div key={p.id}>
-          <AssetsList name={p.name} forceReRender={forceReRender} />
+          <AssetsList name={p.portfolioName} forceReRender={forceReRender} />
         </div>  
       )})}
     </div>

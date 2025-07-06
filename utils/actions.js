@@ -158,6 +158,13 @@ export const getAllPortfolios = async () => {
   const portfolios = await db.select().from(portfolioNames).orderBy(asc(portfolioNames.name))
   return portfolios
 }
+export const getUserPortfolios = async (userId) => {
+  const portfolios = await db
+    .selectDistinctOn([assets.portfolioName])
+    .from(assets).where(eq(assets.clerkId, userId))
+    .orderBy(asc(assets.portfolioName));
+  return portfolios;
+};
 export const getUserAssets = async (userId) => {
   const data = await db.select().from(assets).where(eq(assets.clerkId, userId))
   return data

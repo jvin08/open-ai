@@ -13,8 +13,16 @@ const SearchMatches = ({ disabled, searchTerm, handleInput }) => {
         toast.error('Something went wrong!');
         return
       }
-      console.log(data.results)
-      setData(data.results)
+      const filteredResults = (arr) => {
+        const seen = new Set()
+        return arr.filter(result => {
+          if(seen.has(result.name)) return false
+          seen.add(result.name)
+          return true
+        })
+      }
+      const uniqueTickers = filteredResults(data.results)
+      setData(uniqueTickers)
     }
   });
   const handleChange = (e) => {
@@ -44,7 +52,7 @@ const SearchMatches = ({ disabled, searchTerm, handleInput }) => {
       />
       <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-1 w-full p-2 shadow-sm">
         {
-          data?.map((ticker)=><li key={ticker.composite_figi} onClick={handleClick} >
+          data?.map((ticker)=><li key={ticker.ticker} onClick={handleClick} >
             <a name={ticker.ticker}>{ticker.ticker}</a>
           </li>)
         }
