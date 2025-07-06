@@ -1,11 +1,13 @@
 import { getUserPortfolios, getUserAssets } from '@/utils/actions';
 import React, { useEffect, useState } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AssetsList from './AssetsList';
 import { useAuth } from "@clerk/nextjs";
 
+
 const PortfolioList = ({forceReRender}) => {
   const { userId } = useAuth();
+  const queryClient = useQueryClient()
   const [showTotal, setShowTotal] = useState(true)
   const [portfolios, setPortfolios] = useState([])
   const { data, isLoading } = useQuery({
@@ -30,6 +32,7 @@ const PortfolioList = ({forceReRender}) => {
         return
       }
       setPortfolios(data);
+      queryClient.invalidateQueries(["assets"])
     }
   });
   const handleTotal = () => {
@@ -39,12 +42,15 @@ const PortfolioList = ({forceReRender}) => {
     return num?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  useEffect(()=>getPortfolios.mutate(userId),[])
+  useEffect(() => getPortfolios.mutate(userId),[])
   const gainStyle = totalValue?.gain < 0 ? "badge badge-lg badge-error ml-2" : "badge badge-lg badge-accent ml-2"
   return (
     <div  className='py-4'>
       {showTotal ? <button className="btn btn-success my-2" onClick={handleTotal}>
-        Total value: <div className="badge badge-lg badge-accent ml-2">{formatNumber(totalValue?.total)}</div>
+        Total value: { isLoading
+          ? <progress className="progress w-[91px] bg-teal-700/20 progress-accent px-6"></progress> 
+          : <div className="badge badge-lg badge-accent ml-2">{formatNumber(totalValue?.total)}</div>
+        }
       </button>
       : <button className="btn btn-success my-2" onClick={handleTotal}>
         Gain/Loss: <div className={gainStyle}>{formatNumber(totalValue?.gain)}</div>
