@@ -1,13 +1,12 @@
 import { getUserPortfolios, getUserAssets } from '@/utils/actions';
 import React, { useEffect, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import AssetsList from './AssetsList';
 import { useAuth } from "@clerk/nextjs";
 
 
 const PortfolioList = ({forceReRender}) => {
-  const { userId } = useAuth();
-  const queryClient = useQueryClient()
+  const { userId } = useAuth();  
   const [showTotal, setShowTotal] = useState(true)
   const [portfolios, setPortfolios] = useState([])
   const { data, isLoading } = useQuery({
@@ -32,7 +31,6 @@ const PortfolioList = ({forceReRender}) => {
         return
       }
       setPortfolios(data);
-      queryClient.invalidateQueries(["assets"])
     }
   });
   const handleTotal = () => {
@@ -42,7 +40,7 @@ const PortfolioList = ({forceReRender}) => {
     return num?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
-  useEffect(() => getPortfolios.mutate(userId),[])
+  useEffect(() => getPortfolios.mutate("user_2w5hfPMP72XkAvUQxTguk2X3cZV"),[])
   const gainStyle = totalValue?.gain < 0 ? "badge badge-lg badge-error ml-2" : "badge badge-lg badge-accent ml-2"
   return (
     <div  className='py-4'>

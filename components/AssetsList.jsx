@@ -82,6 +82,7 @@ const AssetsList = ({name, forceReRender}) => {
             totalValue={a.totalValueNow} 
             type={a.type}
             price={a.price}
+            spent={a.totalSpent}
           />
         </li>)}
       </ul>
