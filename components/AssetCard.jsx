@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AssetCard = ({ name, symbol, totalValue, quantity, type, price }) => { 
+const AssetCard = ({ name, symbol, totalValue, quantity, type, price, spent }) => { 
   return (
     <div className="card bg-base-100 w-full sm:w-96 shadow-sm">
       <div className="card-body">
@@ -10,7 +10,7 @@ const AssetCard = ({ name, symbol, totalValue, quantity, type, price }) => {
         </h2>
         <div className="card-actions justify-end">
           {type !== "cash" && <><div className="badge badge-outline text-color-" title="Assets current value">{(quantity * Number(price)).toFixed(2)}</div>
-          <div className="badge badge-outline" title="Total spent">{Number(totalValue).toFixed(2)}</div>
+          <div className="badge badge-outline" title="Total spent">{Number(spent).toFixed(2)}</div>
           <div className="badge badge-outline" title="Current price">{Number(price).toFixed(2)}</div></>}
           <div className="badge badge-outline" title="Quantity">{quantity}</div>
         </div>
