@@ -6,6 +6,7 @@ import { FaPlus } from "react-icons/fa6";
 import { RiArrowGoBackFill } from "react-icons/ri";
 import InputElement from './InputElement';
 import InputPrice from './InputPrice';
+import toast from 'react-hot-toast';
 
 const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
   const { userId } = useAuth();
@@ -48,9 +49,11 @@ const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
       return data;
     }
   });
+  const buttonText = asset.assetType !== "cash" ? type : "add"
+  const marketPrice = asset?.close
   const handleAsset = (e) => {
     e.preventDefault();  
-    const newPrice = price !== "" ? price : asset?.close  
+    const newPrice = price !== "" ? price : marketPrice;
     mutate({
       clerkId: userId,
       assetName: asset.name,
@@ -83,6 +86,9 @@ const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
     const { value } = e.target
     setNewPortfolioName(value)
   }
+  const grabMarketPrice = () => {
+    setPrice(marketPrice)
+  }
   return (
       <dialog className="modal" ref={ref}>
         <div className="modal-box">
@@ -105,13 +111,20 @@ const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
             </div>
           </div>
           {!showInput ? <Fragment>
-            <p className='py-2 flex justify-between'>{asset?.name} ({ asset?.symbol }) <span className='text-sm italic'>market price:  {asset?.close}</span></p>
-            <InputPrice 
+            <p 
+              className='py-2 flex justify-between'>{asset?.name} ({ asset?.symbol }) 
+              {asset.assetType !== "cash" && <span 
+                className='btn btn-dash text-sm italic pl-2' 
+                onClick={grabMarketPrice} 
+                title="Grab this price"
+              > market price:  {asset?.close}</span>}
+            </p>
+            {asset.assetType !== "cash" && <InputPrice 
               setPrice={setPrice} 
               type="number"
-              text={"my_price: "}
+              text={"price: "}
               value={price}
-            />
+            />}
             <InputElement 
               setQuantity={setQuantity} 
               quantity={quantity}
@@ -133,7 +146,11 @@ const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
             </label>
             <div className="modal-action">
               <form method="dialog" className='flex' onSubmit={handleAsset}>
-                <button type="submit" className="btn">{type}</button>
+                <button 
+                  type="submit" 
+                  className="btn" 
+                  disabled={ (price === "" && asset.assetType !== "cash") || (Number(price) === 0 && asset.assetType !== "cash") || portfolioName === "" || Number(quantity) === 0}
+                >{buttonText}</button>
                 <button type="button" className="btn ml-2" onClick={closeToggle}>Decline</button>
               </form>
             </div>

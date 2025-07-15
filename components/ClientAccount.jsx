@@ -5,10 +5,12 @@ import { searchTickerQuote } from '@/utils/actions';
 import SearchMatches from './SearchMatches';
 import HandleAsset from './HandleAsset';
 import PortfolioList from './PortfolioList';
+import toast from 'react-hot-toast';
 
 const Portfolio = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [asset, setAsset] = useState(null)
+  const [error, setError] = useState(false)
   const [showAssetDialog, setShowAssetDialog] = useState(false)
   const [assetType, setAssetType] = useState("")
   const [operationType, setOperationType] = useState("buy")
@@ -18,23 +20,31 @@ const Portfolio = () => {
       return searchTickerQuote(query, assetType);
     },
     onSuccess: (data) => {
-      if(!data){
-        toast.error('Something went wrong!');
+      if(data.status === "error"){
+        setError(true)
+        toast.error('Make sure asset type is correct!');
+        clearInput();
         return
       }
       setAsset({...data, assetType: assetType})
-    }
+      setShowAssetDialog(true)
+    },
   });
   const handleAddAsset = async (e) => {
     e.preventDefault()
-    assetType !== "cash" ? getAsset.mutate(searchTerm) : setAsset({
-      name: "US Dollar",
-      close: 1,
-      symbol: "$",
-      currency: "USD",
-      assetType: "cash"
-    });
-    setShowAssetDialog(true)
+    setError(false)
+    if(assetType !== "cash") {
+      getAsset.mutate(searchTerm)
+    } else {
+       setAsset({
+        name: "US Dollar",
+        close: 1,
+        symbol: "$",
+        currency: "USD",
+        assetType: "cash"
+      });
+      setShowAssetDialog(true)
+    }
   }
   const clearInput = () => {
     setSearchTerm("")
@@ -68,14 +78,14 @@ const Portfolio = () => {
               type='submit'
               onClick={()=>setOperationType("buy")}
             >
-              Buy
+              {assetType !== "cash" ? "buy" : "add"}
             </button>
             <button 
               className='btn btn-primary join-item uppercase box-border' 
               type='submit'
               onClick={()=>setOperationType("sell")}
             >
-              Sell
+              {assetType !== "cash" ? "sell" : "withdraw"}
             </button>
           </div>
         </div>
@@ -90,7 +100,7 @@ const Portfolio = () => {
           type={operationType}
         />
       }
-      <PortfolioList forceReRender={showAssetDialog} />
+      <PortfolioList forceReRender={showAssetDialog} handleAsset={setSearchTerm} />
     </div>
   )
 }
