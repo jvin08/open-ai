@@ -79,7 +79,7 @@ const AssetsList = ({name, forceReRender}) => {
             name={a.name} 
             symbol={a.symbol} 
             quantity={a.totalQuantity} 
-            totalValue={a.totalValueNow} 
+            portfolioValue={totalValue} 
             type={a.type}
             price={a.price}
             spent={a.totalSpent}

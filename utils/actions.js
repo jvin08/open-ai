@@ -240,7 +240,7 @@ export const generateUnspashTourImage = async ({city, country}) => {
 }
 export const queryTickers = async (query) => {
   const polygonKey = process.env.POLIGON_DATA
-  const url = `https://api.polygon.io/v3/reference/tickers?market=stocks&search=${query}&active=true&order=asc&limit=5&sort=ticker&apiKey=${polygonKey}`
+  const url = `https://api.polygon.io/v3/reference/tickers?search=${query}&active=true&order=asc&limit=5&sort=ticker&apiKey=${polygonKey}`
   try {
     return await fetch(url).then(response => response.json())
   } catch (error) {
@@ -251,7 +251,6 @@ export const searchTickerQuote = async (ticker, type) => {
   console.log("searching quote for " + ticker)
   const twelveKey = process.env.TWELVE_DATA;
   const tickerQuery = type === "crypto" ? ticker + "/USD" : ticker
-  console.log("tickerQuery: ", tickerQuery)
   const url = `https://api.twelvedata.com/quote?symbol=${tickerQuery}&apikey=${twelveKey}`
   try {
     return await fetch(url).then(response => response.json())

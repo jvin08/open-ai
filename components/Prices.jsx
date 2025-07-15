@@ -48,7 +48,6 @@ const Prices = () => {
   return (
     <div className="overflow-x-auto rounded-box border border-base-content/5 bg-base-100 mb-auto mt-8">
       <table className="table">
-        {/* head */}
         <thead>
           <tr>
             <th></th>
@@ -57,9 +56,7 @@ const Prices = () => {
             <th>Updated at</th>
           </tr>
         </thead>
-        <tbody>
-          {/* row 1 */}
-          
+        <tbody>          
           {data?.map((item, idx)=>(
             <tr key={item.symbol}>
             <th>{idx + 1}</th>

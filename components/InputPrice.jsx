@@ -17,7 +17,7 @@ const InputPrice = (props) => {
             onChange={handleInput}
             value={props.value}
             min={0}
-            required
+            required={props.value === ""}
       />
     </span>
   )
