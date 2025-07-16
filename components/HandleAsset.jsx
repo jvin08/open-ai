@@ -75,7 +75,6 @@ const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
     clearInput()
   }
   const handleInput = async () => {
-    console.log("handleInput")
     if(showInput){
       newPortfolioName && addPortfolio.mutate(newPortfolioName)
       setNewPortfolioName("")

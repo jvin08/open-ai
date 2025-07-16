@@ -169,7 +169,7 @@ export const getUserAssets = async (userId) => {
   const data = await db.select().from(assets).where(eq(assets.clerkId, userId))
   return data
 }
-export const getUniqueSymbols = async () => {
+export const getUniqueSymbols = async (userID) => {
   const uniques = await db
   .select({
     symbol: assets.assetSymbol,
@@ -177,7 +177,7 @@ export const getUniqueSymbols = async () => {
     time: sql`MAX(${assets.updatedAt})`.as('time')
   })
   .from(assets)
-  .where(notLike(assets.assetSymbol, "$"))
+  .where(and(eq(assets.clerkId, userID), notLike(assets.assetSymbol, "$")))
   .groupBy(assets.assetSymbol);
   return uniques
 }
