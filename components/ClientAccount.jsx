@@ -100,7 +100,7 @@ const Portfolio = () => {
           type={operationType}
         />
       }
-      <PortfolioList forceReRender={showAssetDialog} handleAsset={setSearchTerm} />
+      <PortfolioList forceReRender={showAssetDialog} handleQuery={setSearchTerm} />
     </div>
   )
 }

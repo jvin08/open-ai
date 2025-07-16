@@ -1,32 +1,29 @@
 import { getUserPortfolios, getUserAssets } from '@/utils/actions';
 import React, { useEffect, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import AssetsList from './AssetsList';
 import { useAuth } from "@clerk/nextjs";
 
 
-const PortfolioList = ({forceReRender, handleAsset}) => {
-  
-  const { userId } = useAuth(); 
+const PortfolioList = ({forceReRender, handleQuery}) => {
+  const { userId } = useAuth();  
   const [showTotal, setShowTotal] = useState(true)
   const [portfolios, setPortfolios] = useState([])
-  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
   const { data, isLoading } = useQuery({
     queryKey: ['assets', userId],
-    queryFn: async () => {
-      await delay(100)
-      return await getUserAssets(userId)
-    }
+    queryFn: () => {
+      const data = getUserAssets(userId)
+      return data
+    },
   });
   const totalValue = data?.reduce((acc,val)=> {
     acc.total = acc.total + Number(val.assetQuantity) * Number(val.lastPrice)
     acc.gain = acc.gain + Number(val.assetQuantity) * (Number(val.lastPrice) - Number(val.assetPrice))
     return acc
   }, { total:0, gain:0 })
+
   const getPortfolios = useMutation({
-    mutationFn: async (id) => {
-      return await getUserPortfolios(id);
-    },
+    mutationFn: async (id) => getUserPortfolios(id),
     onSuccess: (data) => {
       if(!data){
         toast.error('Portfolios list went wrong!');
@@ -44,15 +41,9 @@ const PortfolioList = ({forceReRender, handleAsset}) => {
   const handleAssetListClick = (e) => {
     const assetData = e.target.closest("[data-asset]")?.dataset;
     if (!assetData) return;
-    const { asset } = assetData
-    handleAsset(asset)
-};
-  useEffect(() => getPortfolios.mutate(userId),[userId])
-  const queryClient = useQueryClient();
-  useEffect(() => {
-    queryClient.invalidateQueries(['assets', userId]);
-  }, [userId, forceReRender]);
-
+    handleQuery(assetData.asset)
+  };
+  useEffect(() => getPortfolios.mutate(userId),[])
   const gainStyle = totalValue?.gain < 0 ? "badge badge-lg badge-error ml-2" : "badge badge-lg badge-accent ml-2"
   return (
     <div  className='py-4' onClick={handleAssetListClick}>
@@ -72,7 +63,7 @@ const PortfolioList = ({forceReRender, handleAsset}) => {
       </span>
       {portfolios.map((p)=>{ return (
         <div key={p.id}>
-          <AssetsList name={p.portfolioName} forceReRender={forceReRender}/>
+          <AssetsList name={p.portfolioName} forceReRender={forceReRender} />
         </div>  
       )})}
     </div>
