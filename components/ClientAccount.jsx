@@ -74,14 +74,14 @@ const Portfolio = () => {
           </select>
           <div className='flex justify-between'>
             <button 
-              className='btn btn-primary join-item uppercase box-border' 
+              className='btn btn-primary rounded-bl-md sm:rounded-none w-1/2 uppercase box-border' 
               type='submit'
               onClick={()=>setOperationType("buy")}
             >
               {assetType !== "cash" ? "buy" : "add"}
             </button>
             <button 
-              className='btn btn-primary join-item uppercase box-border' 
+              className='btn btn-primary rounded-br-md sm:rounded-e-md w-1/2 uppercase box-border' 
               type='submit'
               onClick={()=>setOperationType("sell")}
             >
