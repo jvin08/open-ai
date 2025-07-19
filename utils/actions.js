@@ -209,12 +209,10 @@ export const getAllTours = async (searchTerm) => {
       throw new Error("Could not fetch tours");
   }
 };
-
 export const getSingleTour = async (id) => {
   const singleTour = await db.select().from(tour).where(eq(tour.id, id));
   return singleTour;
 }
-
 export const generateTourImage = async ({ city, country }) => {
   try {
     const tourImage = await openai.images.generate({
@@ -227,7 +225,6 @@ export const generateTourImage = async ({ city, country }) => {
     return null;
   }
 }
-
 export const generateUnspashTourImage = async ({city, country}) => {
   const unsplashKey = process.env.UNSPLASH_ACCESS_KEY;
   try {
@@ -247,6 +244,7 @@ export const queryTickers = async (query) => {
     return null;
   }
 }
+
 export const searchTickerQuote = async (ticker, type) => {
   console.log("searching quote for " + ticker)
   const twelveKey = process.env.TWELVE_DATA;
@@ -282,5 +280,46 @@ export const subtractTokens = async (clerkId, tokens) => {
     revalidatePath("/profile");
   return result.tokens;
 }
-
+export const addCash = async (clerkId, dollars, portfolioName) => {  
+  const existingCash = await db
+    .select()
+    .from(assets)
+    .where(
+      and(
+        eq(assets.clerkId, clerkId),
+        eq(assets.assetType, "cash"),
+        eq(assets.portfolioName, portfolioName)
+      )
+    );
+  if (existingCash.length > 0) {
+    await db
+      .update(assets)
+      .set({
+        assetQuantity: sql`${assets.assetQuantity} + ${dollars}`
+      })
+      .where(
+        and(
+          eq(assets.clerkId, clerkId),
+          eq(assets.assetType, "cash"),
+          eq(assets.portfolioName, portfolioName)
+        )
+      );
+      revalidatePath("/portfolio");
+      return existingCash
+  } else {
+    const newCash = await db.insert(assets).values({
+      clerkId,
+      assetName: "US Dollar",
+      assetSymbol: "$",
+      assetType: "cash",
+      assetQuantity: dollars,
+      assetPrice: 1,
+      portfolioName: portfolioName,
+      lastPrice: 1,
+      updatedAt: new Date()
+    });
+    revalidatePath("/portfolio");
+    return newCash
+  }
+};
 
