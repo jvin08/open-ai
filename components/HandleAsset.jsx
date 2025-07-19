@@ -1,5 +1,5 @@
 import { useState, Fragment } from 'react';
-import { createNewAsset, deleteAssets, getAllPortfolios, createNewPortfolio } from '@/utils/actions';
+import { createNewAsset, deleteAssets, getAllPortfolios, createNewPortfolio, addCash } from '@/utils/actions';
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { FaPlus } from "react-icons/fa6";
@@ -36,8 +36,11 @@ const HandleAsset = ({ asset, ref, toggleModal, clearInput, type }) => {
   })
   const { mutate, isPending } = useMutation({
     mutationFn: async (assetData) => {
-      if(type === "buy"){
-        return createNewAsset(assetData, type);
+      if(type === "buy" && assetData.assetType !== "cash"){
+        return await createNewAsset(assetData, type);
+      }
+      if(type === "buy" && assetData.assetType === "cash"){
+        return await addCash(userId, quantity, portfolioName)
       }
       return deleteAssets(assetData)
     },

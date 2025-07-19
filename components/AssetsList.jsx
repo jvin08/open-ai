@@ -11,6 +11,7 @@ const AssetsList = ({name, forceReRender}) => {
   const [gain, setGain] = useState("")
   const [totalValue, setTotalValue] = useState(0);
   const [assets, setAssets] = useState([])
+  const [cash, setCash] = useState(0)
   const { mutate, isPending } = useMutation({
     mutationFn: async (query) => {
       return getAssetsByPortfolioName(query, userId);
@@ -20,8 +21,11 @@ const AssetsList = ({name, forceReRender}) => {
         toast.error('Assets list went wrong!');
         return;
       }
+      const filteredData = data.filter(asset => asset.assetType !== "cash")
+      const cashData = data.filter(asset => asset.assetType === "cash")
+      setCash(cashData[0]?.assetQuantity)
       const uniqueItems = Object.values(
-        data.reduce((acc, item) => {
+        filteredData.reduce((acc, item) => {
           if (!acc[item.assetName]) {
             acc[item.assetName] = { 
               id: item.id, 
@@ -60,6 +64,7 @@ const AssetsList = ({name, forceReRender}) => {
   const color = adjuster ? adjusterZero ? "gray" : "red" : "green";
   const gainOrLossStyle = adjuster ? adjusterZero ? "text-gray-500" : "text-red-500" : "text-green-500";
   const gainForRender = adjuster ? gain.slice(1) : gain
+  const cashStyle = isVisible ? "text-base font-semibold text-right mt-2 w-full" : "hidden" 
   return (
     <>
       {assets?.length > 0 && 
@@ -73,6 +78,9 @@ const AssetsList = ({name, forceReRender}) => {
             <p className='text-accent-content w-[50%] text-center'>{ totalValue }</p>
           </div>
         </div>}
+      <h3 className={cashStyle}>
+        Funds available to trade <span className="badge badge-md">{cash}</span>
+      </h3>
       <ul className={isVisible ? '' : 'hidden'}>
         {assets?.map((a)=><li key={a.id} className='py-4'>
           <AssetCard 
