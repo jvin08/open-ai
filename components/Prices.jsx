@@ -36,15 +36,13 @@ const Prices = () => {
       const symbol = symbols[i];
       setFetchingQuote(symbol)
       toast.success("Loading quote for " + symbol + "...");
-      const quote = await searchTickerQuote(symbol);
-      if (!quote) {
+      const price = await searchTickerQuote(symbol);
+      if (!price) {
         toast.error(`No quote found for ${symbol}`);
         continue;
       }
-      const timestamp = quote.is_market_open ? quote.last_quote_at : quote.timestamp;
-      const price = quote.is_market_open ? quote.open : quote.close;
-      const newTime = new Date(timestamp * 1000);
-      await updateAssetPrice(symbol, price, newTime);
+      const newTime = new Date();
+      await updateAssetPrice(symbol, price?.price, newTime);
       queryClient.invalidateQueries(['uniqueSymbols']);
     }
     toast.success('All symbols updated!');

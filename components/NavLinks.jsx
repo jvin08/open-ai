@@ -6,7 +6,8 @@ const links = [
   { href:'/tours/new-tour', label:'new tour' },
   { href:'/profile', label:'profile' },
   { href: '/portfolio', label: 'portfolio' },
-  { href: '/prices', label: 'prices'}
+  { href: '/prices', label: 'prices'},
+  { href: '/paystabs', label: 'paystabs'}
 ]
 
 const NavLinks = () => {

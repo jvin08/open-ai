@@ -6,22 +6,23 @@ import { useAuth } from "@clerk/nextjs";
 
 
 const PortfolioList = ({forceReRender, handleQuery}) => {
+
   const { userId } = useAuth();  
   const [showTotal, setShowTotal] = useState(true)
   const [portfolios, setPortfolios] = useState([])
   const { data, isLoading } = useQuery({
     queryKey: ['assets', userId],
-    queryFn: () => {
-      const data = getUserAssets(userId)
+    queryFn: async () => {
+      const data = await getUserAssets(userId)
       return data
     },
   });
-  const totalValue = data?.reduce((acc,val)=> {
+  const filteredFromCash = data?.filter(asset => asset.assetType !== "cash")
+  const totalValue = filteredFromCash?.reduce((acc,val)=> {
     acc.total = acc.total + Number(val.assetQuantity) * Number(val.lastPrice)
     acc.gain = acc.gain + Number(val.assetQuantity) * (Number(val.lastPrice) - Number(val.assetPrice))
     return acc
   }, { total:0, gain:0 })
-
   const getPortfolios = useMutation({
     mutationFn: async (id) => getUserPortfolios(id),
     onSuccess: (data) => {
@@ -43,7 +44,7 @@ const PortfolioList = ({forceReRender, handleQuery}) => {
     if (!assetData) return;
     handleQuery(assetData.asset)
   };
-  useEffect(() => getPortfolios.mutate(userId),[])
+  useEffect(() => getPortfolios.mutate(userId),[userId])
   const gainStyle = totalValue?.gain < 0 ? "badge badge-lg badge-error ml-2" : "badge badge-lg badge-accent ml-2"
   return (
     <div  className='py-4' onClick={handleAssetListClick}>
@@ -61,7 +62,7 @@ const PortfolioList = ({forceReRender, handleQuery}) => {
         <p className='w-[50%]'>gain / loss</p>
         <p className='w-[50%]'>total value</p>
       </span>
-      {portfolios.map((p)=>{ return (
+      {portfolios?.map((p)=>{ return (
         <div key={p.id}>
           <AssetsList name={p.portfolioName} forceReRender={forceReRender} />
         </div>  
