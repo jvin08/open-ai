@@ -6,7 +6,7 @@ import AssetCard from './AssetCard';
 import { Triangle } from './Triangle';
 
 const AssetsList = ({name, forceReRender}) => {
-  const { userId } = useAuth()
+  const { userId } = useAuth()  
   const [isVisible, setIsVisible] = useState(false);
   const [gain, setGain] = useState("")
   const [totalValue, setTotalValue] = useState(0);

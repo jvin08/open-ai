@@ -13,9 +13,7 @@ const MemberProfile = async () => {
         <p>{user.emailAddresses[0].emailAddress}</p>
       </div>
       <UserTokens tokens={tokensTotal} />
-    </div>
-    
+    </div> 
   )
 }
-
 export default MemberProfile

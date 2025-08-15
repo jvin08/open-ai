@@ -192,7 +192,6 @@ export const getAssetsByPortfolioName = async (name, clerkId) => {
   .orderBy(asc(assets.portfolioName))
   return portfolio
 }
-
 export const getAllTours = async (searchTerm) => {
   try {
       if (!searchTerm) {
@@ -244,12 +243,11 @@ export const queryTickers = async (query) => {
     return null;
   }
 }
-
 export const searchTickerQuote = async (ticker, type) => {
   console.log("searching quote for " + ticker)
   const twelveKey = process.env.TWELVE_DATA;
   const tickerQuery = type === "crypto" ? ticker + "/USD" : ticker
-  const url = `https://api.twelvedata.com/quote?symbol=${tickerQuery}&apikey=${twelveKey}`
+  const url = `https://api.twelvedata.com/price?symbol=${tickerQuery}&apikey=${twelveKey}`
   try {
     return await fetch(url).then(response => response.json())
   } catch (error) {
